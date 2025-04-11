@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="(empty)"
+	BuildStamp="20250410-2216-Experimental"
+	Name="(empty)"
+	Generator="ctest-3.31.6"
+	CompilerName=""
+	CompilerVersion=""
+	OSName="Linux"
+	Hostname="Desktop"
+	OSRelease="6.13.4-arch1-1"
+	OSVersion="#1 SMP PREEMPT_DYNAMIC Sat, 22 Feb 2025 00:37:05 +0000"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="AuthenticAMD"
+	VendorID="Advanced Micro Devices"
+	FamilyID="25"
+	ModelID="68"
+	ModelName="AMD Ryzen 7 7735HS with Radeon Graphics"
+	ProcessorCacheSize="512"
+	NumberOfLogicalCPU="16"
+	NumberOfPhysicalCPU="8"
+	TotalVirtualMemory="4095"
+	TotalPhysicalMemory="27799"
+	LogicalProcessorsPerPhysical="2"
+	ProcessorClockFrequency="3169.2"
+	>
+	<Testing>
+		<StartDateTime>Apr 10 15:16 PDT</StartDateTime>
+		<StartTestTime>1744323372</StartTestTime>
+		<TestList/>
+		<EndDateTime>Apr 10 15:16 PDT</EndDateTime>
+		<EndTestTime>1744323372</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>
