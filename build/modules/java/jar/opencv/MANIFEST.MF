@@ -1,5 +1,0 @@
-Specification-Title: OpenCV
-Specification-Version: 4.12.0-dev
-Implementation-Title: OpenCV
-Implementation-Version: eb1d627-dirty
-Implementation-Date: 
