@@ -63,11 +63,11 @@ CMAKE_BINARY_DIR = /home/cheng/Downloads/DroneVision/droneCV
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/main.dir/all
+all: CMakeFiles/droneCV.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
-codegen: CMakeFiles/main.dir/codegen
+codegen: CMakeFiles/droneCV.dir/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
@@ -75,40 +75,40 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/main.dir/clean
+clean: CMakeFiles/droneCV.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/main.dir
+# Target rules for target CMakeFiles/droneCV.dir
 
 # All Build rule for target.
-CMakeFiles/main.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/cheng/Downloads/DroneVision/droneCV/CMakeFiles --progress-num=1,2 "Built target main"
-.PHONY : CMakeFiles/main.dir/all
+CMakeFiles/droneCV.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneCV.dir/build.make CMakeFiles/droneCV.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneCV.dir/build.make CMakeFiles/droneCV.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/cheng/Downloads/DroneVision/droneCV/CMakeFiles --progress-num=1,2 "Built target droneCV"
+.PHONY : CMakeFiles/droneCV.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/main.dir/rule: cmake_check_build_system
+CMakeFiles/droneCV.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/cheng/Downloads/DroneVision/droneCV/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/main.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/droneCV.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/cheng/Downloads/DroneVision/droneCV/CMakeFiles 0
-.PHONY : CMakeFiles/main.dir/rule
+.PHONY : CMakeFiles/droneCV.dir/rule
 
 # Convenience name for target.
-main: CMakeFiles/main.dir/rule
-.PHONY : main
+droneCV: CMakeFiles/droneCV.dir/rule
+.PHONY : droneCV
 
 # codegen rule for target.
-CMakeFiles/main.dir/codegen:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/cheng/Downloads/DroneVision/droneCV/CMakeFiles --progress-num=1,2 "Finished codegen for target main"
-.PHONY : CMakeFiles/main.dir/codegen
+CMakeFiles/droneCV.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneCV.dir/build.make CMakeFiles/droneCV.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/cheng/Downloads/DroneVision/droneCV/CMakeFiles --progress-num=1,2 "Finished codegen for target droneCV"
+.PHONY : CMakeFiles/droneCV.dir/codegen
 
 # clean rule for target.
-CMakeFiles/main.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/clean
-.PHONY : CMakeFiles/main.dir/clean
+CMakeFiles/droneCV.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneCV.dir/build.make CMakeFiles/droneCV.dir/clean
+.PHONY : CMakeFiles/droneCV.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

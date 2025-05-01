@@ -117,41 +117,41 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named main
+# Target rules for targets named droneCV
 
 # Build rule for target.
-main: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 main
-.PHONY : main
+droneCV: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 droneCV
+.PHONY : droneCV
 
 # fast build rule for target.
-main/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
-.PHONY : main/fast
+droneCV/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneCV.dir/build.make CMakeFiles/droneCV.dir/build
+.PHONY : droneCV/fast
 
-main.o: main.cpp.o
-.PHONY : main.o
+DISOpticalFlow.o: DISOpticalFlow.cpp.o
+.PHONY : DISOpticalFlow.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.o
-.PHONY : main.cpp.o
+DISOpticalFlow.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneCV.dir/build.make CMakeFiles/droneCV.dir/DISOpticalFlow.cpp.o
+.PHONY : DISOpticalFlow.cpp.o
 
-main.i: main.cpp.i
-.PHONY : main.i
+DISOpticalFlow.i: DISOpticalFlow.cpp.i
+.PHONY : DISOpticalFlow.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.i
-.PHONY : main.cpp.i
+DISOpticalFlow.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneCV.dir/build.make CMakeFiles/droneCV.dir/DISOpticalFlow.cpp.i
+.PHONY : DISOpticalFlow.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+DISOpticalFlow.s: DISOpticalFlow.cpp.s
+.PHONY : DISOpticalFlow.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.s
-.PHONY : main.cpp.s
+DISOpticalFlow.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneCV.dir/build.make CMakeFiles/droneCV.dir/DISOpticalFlow.cpp.s
+.PHONY : DISOpticalFlow.cpp.s
 
 # Help Target
 help:
@@ -161,10 +161,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... main"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... droneCV"
+	@echo "... DISOpticalFlow.o"
+	@echo "... DISOpticalFlow.i"
+	@echo "... DISOpticalFlow.s"
 .PHONY : help
 
 

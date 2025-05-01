@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
-project(droneCv)
+project(droneCV)
 
 find_package(OpenCV REQUIRED)
-add_executable(main main.cpp)
-target_link_libraries(main ${OpenCV_LIBS})
+add_executable(droneCV DISOpticalFlow.cpp)
+target_link_libraries(droneCV ${OpenCV_LIBS})
