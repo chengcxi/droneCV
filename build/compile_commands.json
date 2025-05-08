@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/cheng/Downloads/DroneVision/droneCV/build",
+  "command": "/usr/bin/g++  -isystem /usr/local/include/opencv4 -g -o CMakeFiles/droneCV.dir/DenseRLOFOpticalFlow.cpp.o -c /home/cheng/Downloads/DroneVision/droneCV/DenseRLOFOpticalFlow.cpp",
+  "file": "/home/cheng/Downloads/DroneVision/droneCV/DenseRLOFOpticalFlow.cpp",
+  "output": "CMakeFiles/droneCV.dir/DenseRLOFOpticalFlow.cpp.o"
+}
+]

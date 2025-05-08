@@ -11,7 +11,7 @@ int main(){
     cv::Ptr<cv::optflow::DualTVL1OpticalFlow> opticalFlow = cv::optflow::DualTVL1OpticalFlow::create();
     cv::Mat frame, prevFrame, flow;
     cv::namedWindow("Test", cv::WINDOW_NORMAL);
-    cv::resizeWindow("Test", 1040, 720);
+    cv::resizeWindow("Test", 1024, 768);
     cv::VideoCapture cap("/home/cheng/Downloads/DroneVision/test/test.mp4");
     // opticalFlow->setFinestScale(1);
     // //opticalFlow->setGradientDescentIterations(100);

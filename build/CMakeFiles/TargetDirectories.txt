@@ -1,0 +1,3 @@
+/home/cheng/Downloads/DroneVision/droneCV/build/CMakeFiles/droneCV.dir
+/home/cheng/Downloads/DroneVision/droneCV/build/CMakeFiles/edit_cache.dir
+/home/cheng/Downloads/DroneVision/droneCV/build/CMakeFiles/rebuild_cache.dir

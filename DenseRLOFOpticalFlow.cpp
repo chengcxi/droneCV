@@ -3,7 +3,7 @@
 #include <opencv2/video/tracking.hpp>
 #include <bits/stdc++.h>
 #include <chrono>
-#include <opencv2/optflow/rlofflow.hpp>
+#include <opencv2/optflow.hpp>
 
 using namespace std;
 
@@ -11,22 +11,22 @@ int main(){
     cv::Ptr<cv::optflow::DenseRLOFOpticalFlow> opticalFlow = cv::optflow::DenseRLOFOpticalFlow::create();
     cv::Mat frame, prevFrame, flow;
     cv::namedWindow("Test", cv::WINDOW_NORMAL);
-    cv::resizeWindow("Test", 1040, 720);
+    cv::resizeWindow("Test", 1024, 768);
     cv::VideoCapture cap("/home/cheng/Downloads/DroneVision/test/test.mp4");
-    // opticalFlow->setFinestScale(1);
-    // //opticalFlow->setGradientDescentIterations(100);
-    // //opticalFlow->setPatchSize() # default is usually fine (8x8);
-    // opticalFlow->setPatchStride(5);
-    // opticalFlow->setUseMeanNormalization(true);
-    // opticalFlow->setUseSpatialPropagation(false);
-    // opticalFlow->setVariationalRefinementAlpha(1000);
-    // opticalFlow->setVariationalRefinementDelta(100);
-    // opticalFlow->setVariationalRefinementGamma(1);
-    // opticalFlow->setVariationalRefinementIterations(10); // increases accuracy at cost of performance
+    
+    // opticalFlow->setEPICK(128); // Higher = better accuracy, lower = faster detection # default 128
+    opticalFlow->setEPICSigma(0.2); // Higher = finer details, lower = less noise # default 0.05
+    opticalFlow->setEPICLambda(1250); // Higher = less noise, lower = edge awareness # default 999
+    opticalFlow->setFgsSigma(1.5); // Higher = less noise, lower = better object detection # default 0.5
+    opticalFlow->setFgsLambda(200); // Smoothness # default 500
+    opticalFlow->setForwardBackward(0.9); // Lower = less motion detection (less noise) # default 1
+    opticalFlow->setGridStep(cv::Size(5,5)); //Object size, lower = better object detection at cost of speed # default 6x6
+    opticalFlow->setInterpolation(cv::optflow::InterpolationType::INTERP_RIC); // INTERP_GEO = geodesic interpolation, INTERP_EPIC = edge-preserving interpolation, INTERP_RIC = SLIC-robust interpolation # default INTERP_EPIC
+    opticalFlow->setUseVariationalRefinement(1); // Smoothing algorithm # default = 0
+
     int cnt = 0;
     while(cap.read(frame)){
         if(frame.empty()){break;}
-        cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
         cv::medianBlur(frame, frame, 5);
         cnt++;
         if(!prevFrame.empty() && cnt % 5 == 0){

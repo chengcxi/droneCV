@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/cheng/Downloads/DroneVision/droneCV/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
