@@ -2,10 +2,12 @@
 #include <opencv2/core.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <bits/stdc++.h>
+#include <mutex>
+#include <thread>
+#include <chrono>
 
 using namespace std;
-
-enum MotionCompensation{ORB_HOMOGRAPHY, ECC};
+enum MotionCompensation{ORB, ECC}; // ORB homography or ECC
 
 cv::Mat usingORB(const cv::Mat &prev, const cv::Mat &current){
     cv::Mat descriptor0, descriptor1, aligned;
@@ -54,6 +56,21 @@ cv::Mat usingECC(const cv::Mat &prev, const cv::Mat &current){
 }
 
 int main(){
+    MotionCompensation method;
+    cout << "Choose motion compensation method (0 for ORB, 1 for ECC): " << endl;
+    int methodInput;
+    cin >> methodInput;
+    method = static_cast<MotionCompensation>(methodInput);
+
+    cv::Mat frame, currentGray, prevGray, flow, foregroundMask, displayFrame;
+    mutex mtx;
+    atomic<bool> running = true;
+    atomic<bool> frameReady = false;
+
+    cv::namedWindow("Test", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Test", 1024, 768);
+    cv::VideoCapture cap("/home/cheng/Downloads/DroneVision/test/test.mp4");
+
     cv::Ptr<cv::DISOpticalFlow> opticalFlow = cv::DISOpticalFlow::create();
     opticalFlow->setFinestScale(1);
     //opticalFlow->setGradientDescentIterations(100);
@@ -79,40 +96,66 @@ int main(){
     // cv::Ptr<cv::GFTTDetector> detector = cv::GFTTDetector::create();
     // vector<cv::KeyPoint> keypoints;
 
-    cv::Mat frame, prevFrame, flow, warpMatrix;
-    cv::namedWindow("Test", cv::WINDOW_NORMAL);
-    cv::resizeWindow("Test", 1024, 768);
-    cv::VideoCapture cap("/home/cheng/Downloads/DroneVision/test/test.mp4");
-    
-    int count = 0;
+    cv::Mat threadPrevGray, threadCurrentGray, threadFrame, threadMotionMask, threadFlow, threadDisplayFrame;
+    atomic<bool> processedFrame = false;
     thread DISThread([&](){
-        if(!prevFrame.empty() && count % 15 == 0){
-            opticalFlow -> calc(prevFrame, frame, flow);
-            // refineFlow -> calc(prevFrame, frame, flow);
+        while(running){
+            if(!frameReady){
+                this_thread::sleep_for(chrono::milliseconds(1));
+                continue;
+            }
+            {
+                
+                lock_guard<mutex> lock(mtx);            
+                threadPrevGray = prevGray.clone();
+                threadCurrentGray = currentGray.clone();
+                threadFrame = frame.clone();
+                frameReady = false;
+            }
+            if(threadPrevGray.empty() || threadCurrentGray.empty()){continue;}
+            cv::Mat aligned;
+            if(method == ORB){aligned = usingORB(threadPrevGray, threadCurrentGray);}
+            else{aligned = usingECC(threadPrevGray, threadCurrentGray);}
+            opticalFlow -> calc(threadPrevGray, aligned, threadFlow);
+            threadDisplayFrame = threadFrame.clone();
             int flowCoverage = 25;
-            for(int y = 0; y < frame.rows; y+=flowCoverage){
-                for(int x = 0; x < frame.cols; x+=flowCoverage){
-                    cv::Point2f flowAtPoint = flow.at<cv::Point2f>(y, x);
-                    cv::line(frame, cv::Point(x,y), cv::Point(cvRound(x+flowAtPoint.x), cvRound(y+flowAtPoint.y)), cv::Scalar_(0,0,0),2);
-                    cv::circle(frame, cv::Point(x,y), 1, cv::Scalar(255, 0, 0), -1);
+            for(int y = 0; y < threadDisplayFrame.rows; y+=flowCoverage){
+                for(int x = 0; x < threadDisplayFrame.cols; x+=flowCoverage){
+                    cv::Point2f flowAtPoint = threadFlow.at<cv::Point2f>(y, x);
+                    cv::line(threadDisplayFrame, cv::Point(x,y), cv::Point(cvRound(x+flowAtPoint.x), cvRound(y+flowAtPoint.y)), cv::Scalar_(0,0,0),2);
+                    cv::circle(threadDisplayFrame, cv::Point(x,y), 1, cv::Scalar(255, 0, 0), -1);
                 }
             }
+            knn -> apply(aligned, threadMotionMask); // apply k-th nearest neighbor
+            processedFrame = true;
         }
     });
+    
+    int frames = 0;
     while(cap.read(frame)){
         if(frame.empty()){break;}
-        cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY); // apply gray bg
-        knn -> apply(frame, frame); // apply k-th nearest neighbor
+        cv::cvtColor(frame, currentGray, cv::COLOR_BGR2GRAY); // apply gray bg
         // // detector -> detect(frame, keypoints); // apply good features to track
         // for(cv::KeyPoint kp : keypoints){
         //     cv::circle(frame, kp.pt, 3, cv::Scalar(0,255,0), 1);
         // }
-        DISThread;
-        if(count % 14 == 0){prevFrame = frame.clone();}
-        cv::imshow("Test", frame); // change to outFrame if needed
+        {
+            lock_guard<mutex> lock(mtx);
+            prevGray = currentGray.clone();
+            frameReady = true;
+            // if(frames % 14 == 0){prevFrame = frame.clone();}
+        }
+        if(processedFrame){
+            cv::imshow("Test", threadMotionMask);
+            processedFrame = false;
+        }
+        // cv::imshow("Test", frame); // change to outFrame if needed
         if(cv::waitKey(1)>=0){break;}
+        // frames++;
     }
+    running = false;
     DISThread.join();
+
     // Frame capture (wip)
     // cv::Mat frame;cv::waitKeyEx(1);
     // //--- INITIALIZE VIDEOCAPTURE
