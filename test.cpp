@@ -136,7 +136,6 @@ int main(int argc, char** argv)
     std::string modelPath = findFile(parser.get<String>("model"));
     std::string configPath = findFile(parser.get<String>("config"));
 
-    // Open file with classes names.
     if (parser.has("classes"))
     {
         std::string file = parser.get<String>("classes");
@@ -150,20 +149,18 @@ int main(int argc, char** argv)
         }
     }
 
-    // Load a model.
+    // load model.
     Net net = readNet(modelPath, configPath, parser.get<String>("framework"));
     int backend = parser.get<int>("backend");
     net.setPreferableBackend(backend);
     net.setPreferableTarget(parser.get<int>("target"));
     std::vector<String> outNames = net.getUnconnectedOutLayersNames();
 
-    // Create a window
     static const std::string kWinName = "Deep learning object detection in OpenCV";
     namedWindow(kWinName, WINDOW_NORMAL);
     int initialConf = (int)(confThreshold * 100);
     createTrackbar("Confidence threshold, %", kWinName, &initialConf, 99, callback);
 
-    // Open a video file or an image file or a camera stream.
     VideoCapture cap;
     if (parser.has("input"))
         cap.open(parser.get<String>("input"));
@@ -173,7 +170,7 @@ int main(int argc, char** argv)
 #ifdef USE_THREADS
     bool process = true;
 
-    // Frames capturing thread
+    // frame capturing thread
     QueueFPS<Mat> framesQueue;
     std::thread framesThread([&](){
         Mat frame;
@@ -187,7 +184,7 @@ int main(int argc, char** argv)
         }
     });
 
-    // Frames processing thread
+    // frames processing thread
     QueueFPS<Mat> processedFramesQueue;
     QueueFPS<std::vector<Mat> > predictionsQueue;
     std::thread processingThread([&](){
@@ -195,7 +192,7 @@ int main(int argc, char** argv)
         Mat blob;
         while (process)
         {
-            // Get a next frame
+            // get next frame
             Mat frame;
             {
                 if (!framesQueue.empty())
@@ -207,11 +204,11 @@ int main(int argc, char** argv)
                             frame = Mat();
                     }
                     else
-                        framesQueue.clear();  // Skip the rest of frames
+                        framesQueue.clear();
                 }
             }
 
-            // Process the frame
+            // process frame
             if (!frame.empty())
             {
                 preprocess(frame, net, Size(inpWidth, inpHeight), scale, mean, swapRB);
@@ -241,7 +238,7 @@ int main(int argc, char** argv)
         }
     });
 
-    // Postprocessing and rendering loop
+    // postprocessing & rendering
     while (waitKey(1) < 0)
     {
         if (predictionsQueue.empty())
@@ -274,7 +271,7 @@ int main(int argc, char** argv)
     if (async)
         CV_Error(Error::StsNotImplemented, "Asynchronous forward is supported only with Inference Engine backend.");
 
-    // Process frames.
+    // process frame.
     Mat frame, blob;
     while (waitKey(1) < 0)
     {
@@ -292,7 +289,6 @@ int main(int argc, char** argv)
 
         postprocess(frame, outs, net, backend);
 
-        // Put efficiency information.
         std::vector<double> layersTimes;
         double freq = getTickFrequency() / 1000;
         double t = net.getPerfProfile(layersTimes) / freq;
@@ -309,14 +305,14 @@ inline void preprocess(const Mat& frame, Net& net, Size inpSize, float scale,
                        const Scalar& mean, bool swapRB)
 {
     static Mat blob;
-    // Create a 4D blob from a frame.
+    // create a 4D blob from a frame.
     if (inpSize.width <= 0) inpSize.width = frame.cols;
     if (inpSize.height <= 0) inpSize.height = frame.rows;
     blobFromImage(frame, blob, 1.0, inpSize, Scalar(), swapRB, false, CV_8U);
 
-    // Run a model.
+    // run model.
     net.setInput(blob, "", scale, mean);
-    if (net.getLayer(0)->outputNameToIndex("im_info") != -1)  // Faster-RCNN or R-FCN
+    if (net.getLayer(0)->outputNameToIndex("im_info") != -1)  // faster-RCNN or R-FCN
     {
         resize(frame, frame, inpSize);
         Mat imInfo = (Mat_<float>(1, 3) << inpSize.height, inpSize.width, 1.6f);
@@ -334,9 +330,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net, int backend
     std::vector<Rect> boxes;
     if (outLayerType == "DetectionOutput")
     {
-        // Network produces output blob with a shape 1x1xNx7 where N is a number of
-        // detections and an every detection is a vector of values
-        // [batchId, classId, confidence, left, top, right, bottom]
+        // nnetwork produces output blob with a shape 1x1xNx7 where N is a number of detections and an every detection is a vector of values[batchId, classId, confidence, left, top, right, bottom]
         CV_Assert(outs.size() > 0);
         for (size_t k = 0; k < outs.size(); k++)
         {
@@ -361,7 +355,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net, int backend
                         width  = right - left + 1;
                         height = bottom - top + 1;
                     }
-                    classIds.push_back((int)(data[i + 1]) - 1);  // Skip 0th background class id.
+                    classIds.push_back((int)(data[i + 1]) - 1);  // skip 0th background class id.
                     boxes.push_back(Rect(left, top, width, height));
                     confidences.push_back(confidence);
                 }
@@ -372,9 +366,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net, int backend
     {
         for (size_t i = 0; i < outs.size(); ++i)
         {
-            // Network produces output blob with a shape NxC where N is a number of
-            // detected objects and C is a number of classes + 4 where the first 4
-            // numbers are [center_x, center_y, width, height]
+            // nnetwork produces output blob with a shape NxC where N is a number of detected objects and C is a number of classes + 4 where the first 4 numbers are [center_x, center_y, width, height]
             float* data = (float*)outs[i].data;
             for (int j = 0; j < outs[i].rows; ++j, data += outs[i].cols)
             {
@@ -401,8 +393,6 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net, int backend
     else
         CV_Error(Error::StsNotImplemented, "Unknown output layer type: " + outLayerType);
 
-    // NMS is used inside Region layer only on DNN_BACKEND_OPENCV for another backends we need NMS in sample
-    // or NMS is required if number of outputs > 1
     if (outLayers.size() > 1 || (outLayerType == "Region" && backend != DNN_BACKEND_OPENCV))
     {
         std::map<int, std::vector<size_t> > class2indices;

@@ -54,6 +54,12 @@ cv::Mat usingECC(const cv::Mat &prev, const cv::Mat &current){
 }
 
 int main(){
+    MotionCompensation method;
+    cout << "Choose motion compensation method (0 for ORB, 1 for ECC):" << endl;
+    int methodChoice;
+    cin >> methodChoice;
+    method = static_cast<MotionCompensation>(methodChoice);
+
     cv::Ptr<cv::DISOpticalFlow> opticalFlow = cv::DISOpticalFlow::create();
     opticalFlow->setFinestScale(1);
     //opticalFlow->setGradientDescentIterations(100);
@@ -79,38 +85,75 @@ int main(){
     // cv::Ptr<cv::GFTTDetector> detector = cv::GFTTDetector::create();
     // vector<cv::KeyPoint> keypoints;
 
-    cv::Mat frame, prevFrame, flow, warpMatrix;
+    cv::Mat frame, prevFrame, flow, warpMatrix, foregroundMask;
+    mutex mutx;
+
     cv::namedWindow("Test", cv::WINDOW_NORMAL);
     cv::resizeWindow("Test", 1024, 768);
     cv::VideoCapture cap("/home/cheng/Downloads/DroneVision/test/test.mp4");
     
+    cv::Mat DISFrame, DISPrevFrame, DISFlow, DISForegroundMask, DISMotionMask;
     int count = 0;
     thread DISThread([&](){
-        if(!prevFrame.empty() && count % 15 == 0){
-            opticalFlow -> calc(prevFrame, frame, flow);
-            // refineFlow -> calc(prevFrame, frame, flow);
+        {
+            lock_guard<mutex> lock(mutx);
+            DISPrevFrame = prevFrame.clone();
+            DISFrame = frame.clone();
+        }
+        if(!DISPrevFrame.empty() && count % 15 == 0){
+            cv::Mat aligned;
+            if(method == ORB_HOMOGRAPHY){aligned = usingORB(DISPrevFrame, frame);}
+            else{aligned = usingECC(DISPrevFrame, frame);}
+            opticalFlow -> calc(DISPrevFrame, aligned, DISFlow);
+            // refineFlow -> calc(DISPrevFrame, DISFrame, flow);
             int flowCoverage = 25;
-            for(int y = 0; y < frame.rows; y+=flowCoverage){
-                for(int x = 0; x < frame.cols; x+=flowCoverage){
+            for(int y = 0; y < DISFrame.rows; y+=flowCoverage){
+                for(int x = 0; x < DISFrame.cols; x+=flowCoverage){
                     cv::Point2f flowAtPoint = flow.at<cv::Point2f>(y, x);
-                    cv::line(frame, cv::Point(x,y), cv::Point(cvRound(x+flowAtPoint.x), cvRound(y+flowAtPoint.y)), cv::Scalar_(0,0,0),2);
-                    cv::circle(frame, cv::Point(x,y), 1, cv::Scalar(255, 0, 0), -1);
+                    cv::line(DISFrame, cv::Point(x,y), cv::Point(cvRound(x+flowAtPoint.x), cvRound(y+flowAtPoint.y)), cv::Scalar_(0,0,0),2);
+                    cv::circle(DISFrame, cv::Point(x,y), 1, cv::Scalar(255, 0, 0), -1);
                 }
             }
+            knn -> apply(aligned, DISMotionMask); // apply k-th nearest neighbor
         }
     });
     while(cap.read(frame)){
         if(frame.empty()){break;}
-        cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY); // apply gray bg
-        knn -> apply(frame, frame); // apply k-th nearest neighbor
-        // // detector -> detect(frame, keypoints); // apply good features to track
-        // for(cv::KeyPoint kp : keypoints){
-        //     cv::circle(frame, kp.pt, 3, cv::Scalar(0,255,0), 1);
-        // }
-        DISThread;
-        if(count % 14 == 0){prevFrame = frame.clone();}
-        cv::imshow("Test", frame); // change to outFrame if needed
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
+    
+        {
+            lock_guard<mutex> lock(mutx);
+            prevFrame = frame.clone();
+        }
+    
+        // Only process every 15 frames
+        if(count % 1 == 0 && !prevFrame.empty()){
+            cv::Mat aligned;
+            if(method == ORB_HOMOGRAPHY){
+                aligned = usingORB(prevFrame, frame);
+            } else {
+                aligned = usingECC(prevFrame, frame);
+            }
+            opticalFlow->calc(prevFrame, aligned, flow);
+    
+            // Draw flow (optional)
+            int flowCoverage = 10;
+            for(int y = 0; y < frame.rows; y+=flowCoverage){
+                for(int x = 0; x < frame.cols; x+=flowCoverage){
+                    cv::Point2f flowAtPoint = flow.at<cv::Point2f>(y, x);
+                    cv::line(frame, cv::Point(x,y), cv::Point(cvRound(x+flowAtPoint.x), cvRound(y+flowAtPoint.y)), cv::Scalar(0,0,0),2);
+                    cv::circle(frame, cv::Point(x,y), 1, cv::Scalar(255, 0, 0), -1);
+                }
+            }
+            knn->apply(aligned, DISMotionMask);
+        }
+    
+        // Only show if not empty
+        if (!DISMotionMask.empty())
+            cv::imshow("Test", DISMotionMask);
+    
         if(cv::waitKey(1)>=0){break;}
+        count++;
     }
     DISThread.join();
     // Frame capture (wip)

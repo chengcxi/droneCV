@@ -23,6 +23,9 @@ int main(){
     // opticalFlow->setVariationalRefinementDelta(100);
     // opticalFlow->setVariationalRefinementGamma(1);
     // opticalFlow->setVariationalRefinementIterations(10); // increases accuracy at cost of performance
+
+    cv::Ptr<cv::BackgroundSubtractorKNN> knn = cv::createBackgroundSubtractorKNN(10, 750, false);
+
     int cnt = 0;
     while(cap.read(frame)){
         if(frame.empty()){break;}
@@ -40,6 +43,7 @@ int main(){
                 }
             }
         }
+        knn -> apply(frame, prevFrame); // apply k-th nearest neighbor
         if(cnt % 14 == 0){prevFrame = frame.clone();}
         cv::imshow("Test", frame);
         if(cv::waitKey(1)>=0){break;}
